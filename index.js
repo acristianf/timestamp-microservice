@@ -12,19 +12,19 @@ app.get("/", (_, res) => {
 });
 
 app.get("/api/:date?", (req, res, next) => {
-	const date = new Date(req.params.date);
+	var date;
+	if (!req.params.date) date = new Date();
+	else date = new Date(req.params.date);
 	if (isNaN(date)) next();
 	else res.json({ unix: date.getTime(), utc: date.toUTCString() });
 }, (req, res, next) => {
 	const unix_ms = new Number(req.params.date);
 	const date = new Date(unix_ms);
 	if (isNaN(date)) next();
-	else res.json({ unix: req.params.unix, utc: date.toUTCString() });
+	else res.json({ unix: unix_ms, utc: date.toUTCString() });
+}, (_, res) => {
+	res.json({ error: "Invalid Date" });
 });
-
-app.all("*", (_, res) => {
-	res.status(404).send("<h1>404! Page not found!</h1>");
-})
 
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
