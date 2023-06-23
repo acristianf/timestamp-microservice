@@ -4,7 +4,6 @@ const cors = require("cors");
 const app = express();
 const port = 3000;
 
-
 app.use(cors({ optionsSuccessStatus: 200 }));
 app.use(express.static("public"));
 
@@ -14,10 +13,19 @@ app.get("/", (_, res) => {
 
 app.get("/api/:date?", (req, res, next) => {
 	const date = new Date(req.params.date);
-	res.json({ unix: date.getTime(), utc: date.toUTCString() });
-	next();
+	if (isNaN(date)) next();
+	else res.json({ unix: date.getTime(), utc: date.toUTCString() });
+}, (req, res, next) => {
+	const unix_ms = new Number(req.params.date);
+	const date = new Date(unix_ms);
+	if (isNaN(date)) next();
+	else res.json({ unix: req.params.unix, utc: date.toUTCString() });
+});
+
+app.all("*", (_, res) => {
+	res.status(404).send("<h1>404! Page not found!</h1>");
 })
 
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
-})
+});
